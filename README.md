@@ -1,2 +1,3 @@
 # mailprinter
-A thing that runs on a mail server, extracts PDFs from attachments and sends it to a printer elsewhere. 
+Script which connects to an IMAP mailbox and prints whatever arrives as PDF using given printer. 
+
