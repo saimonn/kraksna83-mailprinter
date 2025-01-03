@@ -1,0 +1,23 @@
+[general]
+app_name = MailPrinter
+version = 1.0.0
+
+[logging]
+log_file = /var/log/mailprinter.log
+log_level = INFO
+
+[IMAP]
+server = imap.gmail.com
+port = 993
+username = jenda@example.com
+password = plaintextboys
+poll_interval = 30
+keyword = PRINT BIATCH
+delete_mail = True
+
+[TEMP]
+directory=/tmp
+
+[printer]
+printer_name = Basement_Brother_Printer
+host = localhost
