@@ -1,36 +1,45 @@
 # mailprinter
-Script which connects to an IMAP mailbox and prints whatever arrives as PDF using given printer. 
 
-How to use :
+Script which connects to an IMAP mailbox and prints whatever arrives as PDF using a given printer.
 
-1)  set your params in config.ini 
+## How to use:
 
-## IMAP parameters should be clear. 
-"keyword" is a word, that must be included in the subject, if the script is supposed to do anything to prevent printing spam mails. 
-"AuThEnTICAtiOn"
-delete_mail = True
+1. Set your parameters in `config.ini`.
 
-## For Printer: 
+### IMAP parameters
 
-If using remote host, make sure the CUPS accepts remote print jobs 
-cupsctl --share-printers 
-which accepts them on local subnet. If it's on remote subnet, do 
-cupsctl --share-printers --remote-any
+- `keyword`: A word that must be included in the subject for the script to process the email, preventing spam mails from being printed.
+- `AuThEnTICAtiOn`
+- `delete_mail = True`
 
-then set a particular printer to shared. 
-Check the printer names : 
+### Printer setup
+
+If using a remote host, ensure that CUPS accepts remote print jobs:
+
+```sh
+cupsctl --share-printers
 ```
+
+This command allows printing on the local subnet. If it's on a remote subnet, use:
+
+```sh
+cupsctl --share-printers --remote-any
+```
+
+Then, set a particular printer to shared. Check the printer names:
+
+```sh
 root@jelito ~ $ lpstat
 Xerox_WorkCentre_3025-34 root              1024   Sun 07 Jan 2024 01:31:51 PM CET
 Basement_Brother_Printer       root                 0   Fri 03 Jan 2025 12:50:11 PM CET
 ```
 
-set a particular printer to shared :
+Set a particular printer to shared:
 
+```sh
 lpadmin -p Basement_Brother_Printer -o printer-is-shared=true
+```
 
-use this CUPS printer name in "printer" ini section
+Use this CUPS printer name in the `printer` section of the `config.ini`.
 
-
-2) launch on background. or via "screen". or define a systemd service. 
-
+2. Launch in the background, via `screen`, or define a systemd service.
