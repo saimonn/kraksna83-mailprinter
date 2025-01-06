@@ -1,16 +1,16 @@
 # mailprinter
 
-Script which connects to an IMAP mailbox and prints whatever arrives as PDF using a given printer.
+Script which connects to an IMAP mailbox and prints whatever arrives as PDF using a given CUPS printer.
 
 ## How to use:
 
 1. Set your parameters in `config.ini`.
+2. Launch in the background, via `screen`, or define a systemd service.
 
 ### IMAP parameters
 
-- `keyword`: A word that must be included in the subject for the script to process the email, preventing spam mails from being printed.
-- `AuThEnTICAtiOn`
-- `delete_mail = True`
+- `keyword`: A word that must be included in the subject for the script to process the email, preventing spam mails from being printed. AuThEnTICAtiOn yay
+- `delete_mail`: Whether the script should delete all emails in the mailbox after processing. 
 
 ### Printer setup
 
@@ -39,7 +39,12 @@ Set a particular printer to shared:
 ```sh
 lpadmin -p Basement_Brother_Printer -o printer-is-shared=true
 ```
-
 Use this CUPS printer name in the `printer` section of the `config.ini`.
 
-2. Launch in the background, via `screen`, or define a systemd service.
+
+The following will just list out printers on a given host, mailboxes in a given IMAP server and quit. 
+```sh
+python3 mailprinter.py list
+```
+
+
