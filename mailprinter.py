@@ -140,19 +140,23 @@ def main():
 
 
     while True:
-        logging.debug('Checking for new emails...')
-        email_ids = get_unread_emails(mail)
-        fpath = download_attachments(mail, email_ids)
-        if fpath:
-            logging.debug(f'Printing {fpath}')
-            print_pdf(fpath)
-            logging.debug(f'Deleting {fpath}')
-            #os.remove(fpath)
+        try:
+            logging.debug('Checking for new emails...')
+            email_ids = get_unread_emails(mail)
+            fpath = download_attachments(mail, email_ids)
+            if fpath:
+                logging.debug(f'Printing {fpath}')
+                print_pdf(fpath)
+                logging.debug(f'Deleting {fpath}')
+                #os.remove(fpath)
+            
+
+            if DELETE_MAILS:
+                logging.debug('Deleting all emails.')
+                delete_all_emails(mail)
+        except Exception as e:
+            logging.error(f'An error occurred: {e}')
         time.sleep(POLL_INTERVAL)
-        
-        if DELETE_MAILS:
-            logging.debug('Deleting all emails.')
-            delete_all_emails(mail)
         
     mail.logout()
 
