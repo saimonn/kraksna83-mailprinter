@@ -71,6 +71,11 @@ def download_attachments(mail, email_ids):
 
         status, response = mail.fetch(e_id, '(RFC822)')
         email_message = email.message_from_bytes(response[0][1])
+        #print email subject
+        logging.info(f'Email subject: {email_message["Subject"]}')
+        if config['IMAP']['keyword'] not in email_message["Subject"]:
+            logging.info(f'Keyword {config["IMAP"]["keyword"]} missing in email subject, ignoring')
+            return None 
 
         for part in email_message.walk():
             print (part)
