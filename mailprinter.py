@@ -3,6 +3,8 @@ import sys
 import imaplib
 import email
 import os
+import random
+import string
 import configparser
 import time
 import cups # PyCUPS
@@ -89,7 +91,8 @@ def download_attachments(mail, email_ids):
 
             filename = part.get_filename()
             if filename:
-                filepath = os.path.join(ATTACHMENTS_DIR, f"{e_id}_{index}")
+                random_string= ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+                filepath = os.path.join(ATTACHMENTS_DIR, f"{random_string}_{index}.pdf")
                 with open(filepath, 'wb') as f:
                     f.write(part.get_payload(decode=True))
                 logging.info(f'Downloaded {filename}')
