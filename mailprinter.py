@@ -80,7 +80,7 @@ def download_attachments(mail, email_ids):
             logging.info(f'Keyword {config["IMAP"]["keyword"]} missing in email subject, ignoring')
             return None 
 
-        for part in email_message.walk():
+        for index, part in enumerate(email_message.walk()):
             #print (part)
             if part.get_content_maintype() == 'multipart':
                 continue
@@ -89,7 +89,7 @@ def download_attachments(mail, email_ids):
 
             filename = part.get_filename()
             if filename:
-                filepath = os.path.join(ATTACHMENTS_DIR, filename)
+                filepath = os.path.join(ATTACHMENTS_DIR, f"{e_id}_{index}")
                 with open(filepath, 'wb') as f:
                     f.write(part.get_payload(decode=True))
                 logging.info(f'Downloaded {filename}')
