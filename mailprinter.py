@@ -81,7 +81,7 @@ def download_attachments(mail, email_ids):
             return None 
 
         for part in email_message.walk():
-            print (part)
+            #print (part)
             if part.get_content_maintype() == 'multipart':
                 continue
             if part.get('Content-Disposition') is None:
