@@ -9,7 +9,10 @@ import cups # PyCUPS
 
 # Read configuration from file
 config = configparser.ConfigParser()
-config.read('config.ini')
+try :
+    config.read('config.ini')
+except Exception as e:
+    config.read('/etc/mailprinter.ini')
 # Check if all required options are present
 required_options = {
     'IMAP': ['server', 'port', 'username', 'poll_interval', 'password'],
