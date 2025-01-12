@@ -9,9 +9,9 @@ import cups # PyCUPS
 
 # Read configuration from file
 config = configparser.ConfigParser()
-try :
+if os.path.isfile('config.ini') :
     config.read('config.ini')
-except Exception as e:
+else:
     config.read('/etc/mailprinter.ini')
 # Check if all required options are present
 required_options = {
