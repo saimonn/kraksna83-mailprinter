@@ -17,9 +17,10 @@ else:
     config.read('/etc/mailprinter.ini')
 # Check if all required options are present
 required_options = {
-    'IMAP': ['server', 'port', 'username', 'poll_interval', 'password'],
+    'IMAP': ['server', 'port', 'username', 'poll_interval', 'password', 'delete_mail'],
     'TEMP': ['directory'],
-    'printer': ['printer_name']
+    'printer': ['printer_name', 'host'],
+    'logging': ['level', 'filename']
 }
 
 for section, options in required_options.items():
@@ -29,7 +30,7 @@ for section, options in required_options.items():
         if option not in config[section]:
             raise ValueError(f'Missing option: {option} in section: {section}')
 
-if config['logging']:
+if 'logging' in config:
     import logging
     if config['logging']['level'] == 'DEBUG':
         logging.basicConfig(level=logging.DEBUG)
@@ -56,9 +57,13 @@ cups.setServer(PRINTER_HOST)
 
 
 def connect_to_imap():
-    mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
-    mail.login(EMAIL_ACCOUNT, PASSWORD)
-    return mail
+    try:
+        mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
+        mail.login(EMAIL_ACCOUNT, PASSWORD)
+        return mail
+    except imaplib.IMAP4.error as e:
+        logging.error(f'Failed to connect to IMAP server: {e}')
+        raise
 
 def get_unread_emails(mail):
     #list mailboxes 
@@ -78,9 +83,9 @@ def download_attachments(mail, email_ids):
         email_message = email.message_from_bytes(response[0][1])
         #print email subject
         logging.info(f'Email subject: {email_message["Subject"]}')
-        if config['IMAP']['keyword'] not in email_message["Subject"]:
+        if 'keyword' in config['IMAP'] and config['IMAP']['keyword'] not in email_message["Subject"]:
             logging.info(f'Keyword {config["IMAP"]["keyword"]} missing in email subject, ignoring')
-            return None 
+            continue  # Continue to the next email
 
         for index, part in enumerate(email_message.walk()):
             #print (part)
@@ -97,6 +102,7 @@ def download_attachments(mail, email_ids):
                     f.write(part.get_payload(decode=True))
                 logging.info(f'Downloaded {filename}')
                 return filepath
+    return None  # Return None if no attachments were downloaded
 
 
 def delete_all_emails(mail):
@@ -113,19 +119,17 @@ def print_pdf(filepath):
 
     logging.info('Printing PDF document...')
 
-    cups.setServer('localhost')
     conn = cups.Connection()
     printers = conn.getPrinters()
     #check if printer is available
     if PRINTER_NAME not in printers:
         logging.error(f'Printer {PRINTER_NAME} not found on server {PRINTER_HOST}')
         return
-    printer_name = PRINTER_NAME
     if not filepath.endswith('.pdf'):
-        print('The file is not a PDF document.')
+        logging.error('The file is not a PDF document.')
         return
-    print(f'Sending {filepath} to printer {printer_name}')
-    conn.printFile(printer_name, filepath, "Print Job", {})
+    logging.info(f'Sending {filepath} to printer {PRINTER_NAME}')
+    conn.printFile(PRINTER_NAME, filepath, "Print Job", {})
 
 
 def main():
@@ -147,6 +151,7 @@ def main():
 
     while True:
         try:
+            mail = connect_to_imap()
             logging.debug('Checking for new emails...')
             email_ids = get_unread_emails(mail)
             fpath = download_attachments(mail, email_ids)
@@ -154,17 +159,16 @@ def main():
                 logging.debug(f'Printing {fpath}')
                 print_pdf(fpath)
                 logging.debug(f'Deleting {fpath}')
-                #os.remove(fpath)
-            
+                os.remove(fpath)
 
             if DELETE_MAILS:
                 logging.debug('Deleting all emails.')
                 delete_all_emails(mail)
         except Exception as e:
             logging.error(f'An error occurred: {e}')
+        finally:
+            mail.logout()
         time.sleep(POLL_INTERVAL)
-        
-    mail.logout()
 
 if __name__ == '__main__':
     main()
