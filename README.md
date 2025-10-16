@@ -2,10 +2,36 @@
 
 Script which connects to an IMAP mailbox and prints whatever arrives as PDF using a given CUPS printer.
 
+This is a fork of kraksna83/mailprinter adding systemd steps in README and looking config in XDG or .config paths.
+
 ## How to use:
 
-1. Set your parameters in `config.ini`.
-2. Launch in the background, via `screen`, or define a systemd service.
+    1. Set your parameters in `~/.config/mailprinter.ini` or `/etc/mailprinter.init` for a system-wide installation.
+    2. Launch in the background, via `screen`, or define a user systemd service:
+       This supposes to save the script in ~/bin/ and make it executable.
+
+```shell
+mkdir -p ~/.config/systemd/user
+cat <<EOF > ~/.config/systemd/user/mailprinter.service
+[Unit]
+Description=MailPrinter script at login
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/bin/mailprinter.py
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+EOF
+```
+
+    3. Start and activate the userland service
+systemctl --user daemon-reload
+systemctl --user start mailprinter.service
+systemctl --user enable mailprinter.service
+
 
 ### IMAP parameters
 
