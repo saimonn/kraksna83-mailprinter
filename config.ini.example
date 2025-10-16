@@ -3,7 +3,7 @@ app_name = MailPrinter
 version = 1.0.0
 
 [logging]
-log_file = /var/log/mailprinter.log
+filename = /var/log/mailprinter.log
 log_level = INFO
 
 [IMAP]
